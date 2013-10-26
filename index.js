@@ -4,6 +4,8 @@ var debounce = require('debounce');
 
 module.exports = Scrollbars;
 
+var positioned = ['relative', 'absolute', 'fixed'];
+
 function Scrollbars(element) {
 	if (!(this instanceof Scrollbars))
 		return new Scrollbars(element);
@@ -28,8 +30,10 @@ function Scrollbars(element) {
 	};
 	style = this.outer.style;
 	style.overflow = 'hidden';
-	style.position = 'relative';
 	style.padding = 'none';
+	// don’t mess with already positioned elements
+	if (!~positioned.indexOf(this.outerstyle.position))
+		style.position = 'relative';
 
 	// inject the wrapper
 	this.wrapper = document.createElement('div');
