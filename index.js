@@ -195,7 +195,7 @@ function setPosition(el, positions) {
 		var prop = props[i];
 		var pos = positions[i];
 		if (typeof pos !== 'undefined')
-			el.style[prop] = pos + 'px';
+			el.style[prop] = Math.round(pos) + 'px';
 	}
 }
 

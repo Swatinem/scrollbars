@@ -12,7 +12,6 @@
   ],
   "dependencies": {
     "eivindfjeldstad/scrollbar-size": "*",
-    "component/classes": "*",
     "component/debounce": "*"
   },
   "license": "LGPLv3"
