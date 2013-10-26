@@ -1,0 +1,8 @@
+{
+	"name": "scrollbars",
+	"private": true,
+	"version": "0.0.1",
+	"devDependencies": {
+		"mocha": "*"
+	}
+}

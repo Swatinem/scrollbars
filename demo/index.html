@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <title>Scrollbars</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="../build/build.css" />
+    <style>
+      .outer {
+        display: inline-block;
+        overflow: auto;
+        width: 200px;
+        height: 200px;
+        margin: 10px;
+        border: 1px solid #ddd;
+        padding: 10px;
+      }
+      /* just to be clear: you don’t need to wrap your content! */
+      .inner {
+        border: 1px solid #ddd;
+        min-height: 100px;
+      }
+      .inner.horizontal {
+        width: 600px;
+      }
+      .inner.vertical {
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row original">
+      <div class="outer">
+        <div class="inner vertical">
+        </div>
+      </div>
+      <div class="outer">
+        <div class="inner horizontal">
+        </div>
+      </div>
+      <div class="outer">
+        <div class="inner vertical horizontal">
+        </div>
+      </div>
+    </div>
+    <div class="row scrollbars">
+      <div class="outer">
+        <div class="inner vertical">
+        </div>
+      </div>
+      <div class="outer">
+        <div class="inner horizontal">
+        </div>
+      </div>
+      <div class="outer">
+        <div class="inner vertical horizontal">
+        </div>
+      </div>
+    </div>
+    <script src="../build/build.js"></script>
+    <script>
+      var scrollbars = require('scrollbars');
+      var elements = document.querySelectorAll('.scrollbars .outer');
+      elements = [].slice.call(elements).map(scrollbars);
+    </script>
+  </body>
+</html>

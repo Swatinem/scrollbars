@@ -1,0 +1,7 @@
+node_modules
+build
+components
+npm-debug.log
+*.tgz
+*.patch
+*.diff
