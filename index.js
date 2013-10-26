@@ -20,17 +20,16 @@ function Scrollbars(element) {
 
 	// save the current style, so we can restore if necessary
 	var style = getComputedStyle(this.outer);
+	// and a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=889091
+	var padding = ['Top', 'Right', 'Bottom', 'Left'].map(function (prop) {
+		return style['padding' + prop];
+	}).join(' ');
 	this.outerstyle = {
 		overflow: style.overflow,
 		position: style.position,
-		// and a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=889091
-		padding: ['Top', 'Right', 'Bottom', 'Left'].map(function (prop) {
-			return style['padding' + prop];
-		}).join(' '),
 	};
 	style = this.outer.style;
 	style.overflow = 'hidden';
-	style.padding = 'none';
 	// don’t mess with already positioned elements
 	if (!~positioned.indexOf(this.outerstyle.position))
 		style.position = 'relative';
@@ -40,7 +39,11 @@ function Scrollbars(element) {
 	style = this.wrapper.style;
 	style.overflow = 'scroll';
 	style.position = 'absolute';
-	style.padding = this.outerstyle.padding;
+	// we actually keep the padding on the outer element as it is, since usually
+	// elements are sized as content-box, but our absolutely positioned wrapper
+	// is relative to the outers padding-box, so it needs the padding in order
+	// to have the same inner dimensions as the original element.
+	style.padding = padding;
 	setPosition(this.wrapper, [0, -scrollbarSize, -scrollbarSize, 0]);
 	this.outer.appendChild(this.wrapper);
 
@@ -173,7 +176,6 @@ Scrollbars.prototype.destroy = function Scrollbars_destroy() {
 	var style = this.outer.style;
 	style.overflow = this.outerstyle.overflow;
 	style.position = this.outerstyle.position;
-	style.padding = this.outerstyle.padding;
 };
 
 // create a handle

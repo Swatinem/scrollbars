@@ -4,11 +4,53 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
     <style>
+      #test-position-fixed {
+        position: fixed;
+      }
+      #test-restore {
+        overflow: visible;
+      }
+      #test-padding {
+        padding: 20px;
+      }
+      #test-nothing, #test-something {
+        height: 100px;
+        width: 100px;
+      }
+      #test-nothing .content {
+        height: 50px;
+        width: 50px;
+      }
+      #test-something .content {
+        height: 200px;
+        width: 200px;
+      }
+      #test-dimensions {
+        width: 50px;
+        height: 200px;
+        overflow: hidden;
+        padding: 10px;
+      }
     </style>
   </head>
   <body>
+    <div id="tests">
+      <div id="test-position"></div>
+      <div id="test-position-fixed"></div>
+      <div id="test-restore"></div>
+      <div id="test-padding"></div>
+      <div id="test-nothing"><div class="content"></div></div>
+      <div id="test-something"><div class="content"></div></div>
+      <div id="test-dimensions"><span>
+        And there is a text node…
+        And there is a text node…
+        And there is a text node…
+        And there is a text node…
+      </span></div>
+    </div>
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/should/should.js"></script>
     <script>mocha.setup('bdd')</script>
     <script src="../build/build.js"></script>
     <script src="unit.js"></script>
