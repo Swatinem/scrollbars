@@ -84,5 +84,12 @@ describe('Scrollbars', function () {
 		dim2 = [dim2.top, dim2.right, dim2.bottom, dim2.left, dim2.width, dim2.height];
 		dim2.should.eql(dim);
 	});
+
+	it.skip('should inherit styles based on an id as well', function () {
+		
+	});
+	it.skip('should react to any changes in the original elements classlist', function () {
+		
+	});
 });
 
