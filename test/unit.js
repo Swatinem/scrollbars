@@ -55,6 +55,7 @@ describe('Scrollbars', function () {
 	it('should add a scrollbar when there is something to scroll', function () {
 		var elem = qs('.test-something');
 		var scr = scrollbars(elem);
+		scrollbars.CORNER = 0;
 		scr.refresh();
 		scr.handleV.firstChild.className.should.include('show');
 		scr.handleH.firstChild.className.should.include('show');
@@ -66,6 +67,7 @@ describe('Scrollbars', function () {
 		var elem = qs('.test-something');
 		var scr = scrollbars(elem);
 		elem.scrollTop = 50;
+		scrollbars.CORNER = 0;
 		scr.refresh();
 		scr.handleV.firstChild.className.should.include('show');
 		scr.handleH.firstChild.className.should.include('show');
@@ -83,6 +85,31 @@ describe('Scrollbars', function () {
 		var dim2 = child.getBoundingClientRect();
 		dim2 = [dim2.top, dim2.right, dim2.bottom, dim2.left, dim2.width, dim2.height];
 		dim2.should.eql(dim);
+	});
+
+	it('should make the scrollbar a minimum size', function () {
+		var elem = qs('.test-minsize');
+		var scr = scrollbars(elem);
+		elem.scrollTop = 2000;
+		scrollbars.MIN_SIZE = 25;
+		scr.refresh();
+		scr.handleV.style.top.should.eql('25px');
+		scr.handleV.style.bottom.should.eql('0px');
+		scr.destroy();
+	});
+
+	it('should give a little corner if both handles are visible', function () {
+		var elem = qs('.test-something');
+		var scr = scrollbars(elem);
+		elem.scrollTop = 500;
+		elem.scrollLeft = 500;
+		scrollbars.CORNER = 10;
+		scr.refresh();
+		scr.handleV.firstChild.className.should.include('show');
+		scr.handleH.firstChild.className.should.include('show');
+		scr.handleV.style.bottom.should.eql('10px');
+		scr.handleH.style.right.should.eql('10px');
+		scr.destroy();
 	});
 
 	it.skip('should inherit styles based on an id as well', function () {

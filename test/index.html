@@ -32,6 +32,13 @@
         overflow: hidden;
         padding: 10px;
       }
+      .test-minsize {
+        height: 50px;
+        width: 50px;
+      }
+      .test-minsize .content {
+        height: 2000px;
+      }
     </style>
   </head>
   <body>
@@ -48,6 +55,7 @@
         And there is a text node…
         And there is a text node…
       </span></div>
+      <div class="test-minsize"><div class="content"></div></div>
     </div>
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>

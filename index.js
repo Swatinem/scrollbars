@@ -5,6 +5,9 @@ var classes = require('classes');
 
 module.exports = Scrollbars;
 
+Scrollbars.MIN_SIZE = 25;
+Scrollbars.CORNER = 6;
+
 var positioned = ['relative', 'absolute', 'fixed'];
 
 function Scrollbars(element) {
@@ -107,51 +110,75 @@ Scrollbars.prototype._startDrag = function Scrollbars__startDrag(handle, ev) {
 		handler: handler,
 		offset: vertical ? ev.pageY - rect.top : ev.pageX - rect.left
 	};
-	//console.log(ev, rect, this.dragging);
 };
 
 Scrollbars.prototype._mouseMove = function Scrollbars__mouseMove(ev) {
-	//console.log(this.dragging, ev);
 	var vertical = this.dragging.elem == this.handleV;
 	var rect = this.elem.getBoundingClientRect();
+	var size = handleSize(this.elem);
+	var offset;
 	if (vertical) {
-		var percentage = this.wrapper.clientHeight / this.elem.scrollHeight;
-		var offset = ev.pageY - rect.top - this.dragging.offset;
-		this.elem.scrollTop = offset / percentage;
+		offset = ev.pageY - rect.top - this.dragging.offset;
+		this.elem.scrollTop = offset / size.sizeH * size.sTM;
 	} else {
-		percentage = this.wrapper.clientWidth / this.elem.scrollWidth;
 		offset = ev.pageX - rect.left - this.dragging.offset;
-		this.elem.scrollLeft = offset / percentage;
+		this.elem.scrollLeft = offset / size.sizeW * size.sLM;
 	}
-	this.refresh();
 };
+
+function handleSize(elem) {
+	var cH = elem.clientHeight;
+	var sH = elem.scrollHeight;
+	var sTM = elem.scrollTopMax || Math.max(sH - cH, 0);
+	var cW = elem.clientWidth;
+	var sW = elem.scrollWidth;
+	var sLM = elem.scrollLeftMax || Math.max(sW - cW, 0);
+
+	var pH = cH / sH;
+	var pW = cW / sW;
+
+	var corner = sTM && sLM ? Scrollbars.CORNER : 0;
+
+	var sizeH = cH - Math.max(Scrollbars.MIN_SIZE, pH * (cH - corner)) - corner;
+	var sizeW = cW - Math.max(Scrollbars.MIN_SIZE, pW * (cW - corner)) - corner;
+
+	return {
+		corner: corner,
+		sTM: sTM,
+		sLM: sLM,
+		sizeH: sizeH,
+		sizeW: sizeW,
+		pH: pH,
+		pW: pW,
+	};
+}
 
 /*
  * Refreshes (and shows) the scrollbars
  */
 Scrollbars.prototype.refresh = function Scrollbars_refresh() {
+	var size = handleSize(this.elem);
+	var scrolledPercentage;
 	// vertical
-	var percentage = this.elem.clientHeight / this.elem.scrollHeight;
-	if (this.elem.scrollTopMax || percentage < 1) {
-		var scrolledPercentage = this.elem.scrollTop / this.elem.scrollHeight;
+	if (size.sTM) {
+		scrolledPercentage = this.elem.scrollTop / size.sTM;
 		setPosition(this.handleV, [
-			scrolledPercentage * this.elem.clientHeight,
+			scrolledPercentage * size.sizeH,
 			0,
-			(1 - scrolledPercentage - percentage) * this.elem.clientHeight,
+			(1 - scrolledPercentage) * size.sizeH + size.corner,
 			undefined
 		]);
 		this.handleV.firstChild.className = 'scrollbars-handle vertical show';
 	}
 
 	// horizontal
-	percentage = this.elem.clientWidth / this.elem.scrollWidth;
-	if (this.elem.scrollLeftMax || percentage < 1) {
-		scrolledPercentage = this.elem.scrollLeft / this.elem.scrollWidth;
+	if (size.sLM) {
+		scrolledPercentage = this.elem.scrollLeft / size.sLM;
 		setPosition(this.handleH, [
 			undefined,
-			(1 - scrolledPercentage - percentage) * this.elem.clientWidth,
+			(1 - scrolledPercentage) * size.sizeW + size.corner,
 			0,
-			scrolledPercentage * this.elem.clientWidth,
+			scrolledPercentage * size.sizeW,
 		]);
 		this.handleH.firstChild.className = 'scrollbars-handle horizontal show';
 	}
