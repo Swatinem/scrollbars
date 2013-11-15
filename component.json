@@ -12,6 +12,7 @@
   ],
   "dependencies": {
     "eivindfjeldstad/scrollbar-size": "*",
+    "component/events": "*",
     "component/debounce": "*",
     "component/classes": "*"
   },

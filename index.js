@@ -2,6 +2,7 @@
 var scrollbarSize = require('scrollbar-size');
 var debounce = require('debounce');
 var classes = require('classes');
+var events = require('events');
 
 module.exports = Scrollbars;
 
@@ -46,6 +47,13 @@ function Scrollbars(element) {
 		style.position = 'relative';
 	style.overflow = 'hidden';
 
+	this.events = events(this.elem, this);
+
+	// OSX has native overlay scrollbars which have a width of 0
+	// in that case just don’t create any custom ones
+	if (!scrollbarSize)
+		return this;
+
 	// and create scrollbar handles
 	this.handleV = handle('vertical', [0, 0, 0, undefined]);
 	this.wrapper.appendChild(this.handleV);
@@ -63,13 +71,8 @@ function Scrollbars(element) {
 	}, 1000);
 
 	// hook them up to scroll events
-	this.elem.addEventListener('scroll', function () {
-		self.refresh();
-	}, false);
-	// and mouseenter
-	this.elem.addEventListener('mouseenter', function () {
-		self.refresh();
-	}, false);
+	this.events.bind('scroll', 'refresh');
+	this.events.bind('mouseenter', 'refresh');
 
 	[this.handleV, this.handleH].forEach(function (handle) {
 		// don’t hide handle when hovering
@@ -157,6 +160,8 @@ function handleSize(elem) {
  * Refreshes (and shows) the scrollbars
  */
 Scrollbars.prototype.refresh = function Scrollbars_refresh() {
+	if (!scrollbarSize)
+		return;
 	var size = handleSize(this.elem);
 	var scrolledPercentage;
 	// vertical
@@ -193,12 +198,17 @@ Scrollbars.prototype.destroy = function Scrollbars_destroy() {
 	this.wrapper.removeChild(this.elem);
 	this.wrapper.parentNode.replaceChild(this.elem, this.wrapper);
 	classes(this.elem).remove('scrollbars-override');
+	this.events.unbind();
 
 	var style = this.elem.style;
 	style.top = this.elemstyle.top;
 	style.right = this.elemstyle.right;
 	style.left = this.elemstyle.left;
 	style.bottom = this.elemstyle.bottom;
+
+	// clear all the props, so the GC can clear them up
+	this.wrapper = this.handleV = this.handleH = this.elemstyle = this.elem =
+		this._endDrag = this.dragging = this.hide = this.events = null;
 };
 
 // create a handle
@@ -226,9 +236,4 @@ function setPosition(el, positions) {
 		if (typeof pos !== 'undefined')
 			el.style[prop] = Math.round(pos) + 'px';
 	}
-}
-
-function empty(el) {
-	while (el.firstChild)
-		el.removeChild(el.firstChild);
 }
