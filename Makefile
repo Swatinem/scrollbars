@@ -1,5 +1,5 @@
 
-test:
+test: build/build.js
 	./node_modules/.bin/component test phantom
 
 components: component.json
