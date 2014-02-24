@@ -1,28 +1,51 @@
 
 var scrollbars = require('scrollbars');
+require('chaijs-chai').should();
 
-function qs(selector, parent) {
-	return (parent || document).querySelector(selector);
-}
-function gcs(elem) {
-	return getComputedStyle(elem);
-}
 
 describe('Scrollbars', function () {
+	var testEl = document.createElement('div');
+
+	function gcs(elem) {
+		return getComputedStyle(elem);
+	}
+
+	function makeStyle(st) {
+		var style = document.createElement('style');
+		style.innerHTML = st;
+		testEl.appendChild(style);
+		return style;
+	}
+
+	function makeElem(klass) {
+		var el = document.createElement('div');
+		el.className = klass;
+		testEl.appendChild(el);
+		return el;
+	}
+
+	before(function () {
+		document.body.appendChild(testEl);
+	});
 	after(function () {
-		var testsElem = qs('#tests');
-		testsElem.parentNode.removeChild(testsElem);
+		testEl.parentNode.removeChild(testEl);
+	});
+	afterEach(function () {
+		while (testEl.firstChild)
+			testEl.removeChild(testEl.firstChild);
 	});
 
 	it('should inherit `position` of already positioned elements', function () {
-		var elem = qs('.test-position-fixed');
+		makeStyle('.test-position-fixed { position: fixed; }');
+		var elem = makeElem('test-position-fixed');
 		gcs(elem).position.should.eql('fixed');
 		var scr = scrollbars(elem);
 		gcs(scr.wrapper).position.should.eql('fixed');
 	});
 
 	it('should restore overridden properties', function () {
-		var elem = qs('.test-restore');
+		makeStyle('.test-restore { overflow: visible; }');
+		var elem = makeElem('test-restore');
 		var scr = scrollbars(elem);
 		var st = gcs(elem);
 		st.position.should.eql('absolute');
@@ -34,37 +57,46 @@ describe('Scrollbars', function () {
 	});
 
 	it('should not make the scroll handles visible when there is nothing to scroll', function () {
-		var elem = qs('.test-nothing');
+		makeStyle('.test-nothing { height: 100px; width: 100px; }' +
+		          '.test-nothing .content { height: 50px; width: 50px; }');
+		var elem = makeElem('test-nothing');
+		elem.innerHTML = '<div class="content"></div>';
 		var scr = scrollbars(elem);
 		scr.refresh();
 		scr.handleV.firstChild.className.should.not.include('show');
 		scr.handleH.firstChild.className.should.not.include('show');
 	});
 
+	function something() {
+		makeStyle('.test-something { height: 100px; width: 100px; }' +
+		          '.test-something .content { height: 200px; width: 200px; }');
+		var elem = makeElem('test-something');
+		elem.innerHTML = '<div class="content"></div>';
+		return elem;
+	}
+
 	it('should actually use the outer element as scroll area', function (done) {
-		var elem = qs('.test-something');
+		var elem = something();
 		var scr = scrollbars(elem);
 		scr.refresh();
 		elem.addEventListener('scroll', function () {
-			scr.destroy();
 			done();
 		}, false);
 		elem.scrollTop = 50;
 	});
 
 	it('should add a scrollbar when there is something to scroll', function () {
-		var elem = qs('.test-something');
+		var elem = something();
 		var scr = scrollbars(elem);
 		scrollbars.CORNER = 0;
 		scr.refresh();
 		scr.handleV.firstChild.className.should.include('show');
 		scr.handleH.firstChild.className.should.include('show');
 		scr.handleV.style.bottom.should.eql('50px');
-		scr.destroy();
 	});
 
 	it('should move the scrollbar according to scrollTop', function () {
-		var elem = qs('.test-something');
+		var elem = something();
 		var scr = scrollbars(elem);
 		elem.scrollTop = 50;
 		scrollbars.CORNER = 0;
@@ -72,11 +104,12 @@ describe('Scrollbars', function () {
 		scr.handleV.firstChild.className.should.include('show');
 		scr.handleH.firstChild.className.should.include('show');
 		scr.handleV.style.bottom.should.eql('25px');
-		scr.destroy();
 	});
 
 	it('should not mess with the childs dimensions', function () {
-		var elem = qs('.test-dimensions');
+		makeStyle('.test-dimensions { width: 50px; height: 200px; overflow: hidden; padding: 10px; }');
+		var elem = makeElem('test-dimensions');
+		elem.innerHTML = '<span>' + Array(4).join('    And there is a text node…\n') + '</span>';
 		var child = elem.firstChild;
 		var dim = child.getBoundingClientRect();
 		dim = [dim.top, dim.right, dim.bottom, dim.left, dim.width, dim.height];
@@ -88,18 +121,20 @@ describe('Scrollbars', function () {
 	});
 
 	it('should make the scrollbar a minimum size', function () {
-		var elem = qs('.test-minsize');
+		makeStyle('.test-minsize { height: 50px; width: 50px; }' +
+		          '.test-minsize .content { height: 2000px; }');
+		var elem = makeElem('test-minsize');
+		elem.innerHTML = '<div class="content"></div>';
 		var scr = scrollbars(elem);
 		elem.scrollTop = 2000;
 		scrollbars.MIN_SIZE = 25;
 		scr.refresh();
 		scr.handleV.style.top.should.eql('25px');
 		scr.handleV.style.bottom.should.eql('0px');
-		scr.destroy();
 	});
 
 	it('should give a little corner if both handles are visible', function () {
-		var elem = qs('.test-something');
+		var elem = something();
 		var scr = scrollbars(elem);
 		elem.scrollTop = 500;
 		elem.scrollLeft = 500;
@@ -109,7 +144,6 @@ describe('Scrollbars', function () {
 		scr.handleH.firstChild.className.should.include('show');
 		scr.handleV.style.bottom.should.eql('10px');
 		scr.handleH.style.right.should.eql('10px');
-		scr.destroy();
 	});
 
 	it.skip('should inherit styles based on an id as well', function () {

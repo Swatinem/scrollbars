@@ -2,8 +2,11 @@
 	"name": "scrollbars",
 	"private": true,
 	"version": "0.0.1",
+  "scripts": {
+    "test": "make test"
+  },
 	"devDependencies": {
-		"mocha": "*",
-		"should": "*"
+		"component": "*",
+		"component-test": "*"
 	}
 }

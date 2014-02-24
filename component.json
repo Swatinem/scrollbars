@@ -16,5 +16,8 @@
     "component/debounce": "*",
     "component/classes": "*"
   },
+  "development": {
+    "chaijs/chai": "*"
+  },
   "license": "LGPLv3"
 }
