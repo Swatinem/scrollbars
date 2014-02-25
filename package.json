@@ -7,6 +7,10 @@
   },
 	"devDependencies": {
 		"component": "*",
-		"component-test": "*"
+		"component-test": "*",
+		"istanbul": "*",
+		"component-istanbul": "*",
+		"coveralls": "*",
+    "jshint": "*"
 	}
 }

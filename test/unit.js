@@ -51,7 +51,7 @@ describe('Scrollbars', function () {
 		st.position.should.eql('absolute');
 		st.overflow.should.eql('scroll');
 		scr.destroy();
-		var st = gcs(elem);
+		st = gcs(elem);
 		st.position.should.eql('static');
 		st.overflow.should.eql('visible');
 	});

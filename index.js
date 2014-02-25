@@ -64,9 +64,9 @@ function Scrollbars(element) {
 
 	// hide after some inactivity
 	this.hide = debounce(function () {
-		if (!self.dragging || self.dragging.elem != self.handleV)
+		if (!self.dragging || self.dragging.elem !== self.handleV)
 			self.handleV.firstChild.className = 'scrollbars-handle vertical';
-		if (!self.dragging || self.dragging.elem != self.handleH)
+		if (!self.dragging || self.dragging.elem !== self.handleH)
 			self.handleH.firstChild.className = 'scrollbars-handle horizontal';
 	}, 1000);
 
@@ -76,11 +76,11 @@ function Scrollbars(element) {
 
 	[this.handleV, this.handleH].forEach(function (handle) {
 		// don’t hide handle when hovering
-		handle.firstChild.addEventListener('mouseenter', function (ev) {
+		handle.firstChild.addEventListener('mouseenter', function () {
 			if (!self.dragging)
 				self.dragging = {elem: handle};
 		}, false);
-		handle.firstChild.addEventListener('mouseleave', function (ev) {
+		handle.firstChild.addEventListener('mouseleave', function () {
 			if (self.dragging && !self.dragging.handler)
 				self.dragging = null;
 		}, false);
@@ -100,7 +100,7 @@ function Scrollbars(element) {
 }
 
 Scrollbars.prototype._startDrag = function Scrollbars__startDrag(handle, ev) {
-	var vertical = handle == this.handleV;
+	var vertical = handle === this.handleV;
 	var self = this;
 	var handler = function (ev) {
 		self._mouseMove(ev);
@@ -116,7 +116,7 @@ Scrollbars.prototype._startDrag = function Scrollbars__startDrag(handle, ev) {
 };
 
 Scrollbars.prototype._mouseMove = function Scrollbars__mouseMove(ev) {
-	var vertical = this.dragging.elem == this.handleV;
+	var vertical = this.dragging.elem === this.handleV;
 	var rect = this.elem.getBoundingClientRect();
 	var size = handleSize(this.elem);
 	var offset;
@@ -192,7 +192,6 @@ Scrollbars.prototype.refresh = function Scrollbars_refresh() {
 };
 
 Scrollbars.prototype.destroy = function Scrollbars_destroy() {
-	var self = this;
 	if (this.dragging && this.dragging.handler)
 		this._endDrag(); // clear global events
 	this.wrapper.removeChild(this.elem);
@@ -220,9 +219,9 @@ function handle(klass, pos) {
 	setPosition(container, pos);
 
 	// the handle itself
-	var handle = document.createElement('div');
-	handle.className = 'scrollbars-handle ' + klass;
-	container.appendChild(handle);
+	var handleEl = document.createElement('div');
+	handleEl.className = 'scrollbars-handle ' + klass;
+	container.appendChild(handleEl);
 
 	return container;
 }

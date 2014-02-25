@@ -1,6 +1,7 @@
 node_modules
 build
 components
+coverage
 npm-debug.log
 *.tgz
 *.patch
