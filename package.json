@@ -7,7 +7,7 @@
   },
 	"devDependencies": {
 		"component": "*",
-		"component-test": "*",
+		"component-test": "Swatinem/component-test",
 		"istanbul": "*",
 		"component-istanbul": "*",
 		"coveralls": "*",
