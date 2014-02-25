@@ -9,6 +9,9 @@ changes or to wrap the elements in a container and without a nasty jQuery depend
 You also can style the scrollbars yourself by overriding the `.scrollbars-handle`
 style.
 
+[![Build Status](https://travis-ci.org/Swatinem/scrollbars.png?branch=master)](https://travis-ci.org/Swatinem/scrollbars)
+[![Coverage Status](https://coveralls.io/repos/Swatinem/scrollbars/badge.png?branch=master)](https://coveralls.io/r/Swatinem/scrollbars)
+
 ## Installation
 
     $ component install Swatinem/scrollbars
