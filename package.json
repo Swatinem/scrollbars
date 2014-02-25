@@ -3,7 +3,7 @@
 	"private": true,
 	"version": "0.0.1",
   "scripts": {
-    "test": "make test"
+    "test": "make test-coveralls"
   },
 	"devDependencies": {
 		"component": "*",
