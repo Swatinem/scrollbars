@@ -17,7 +17,8 @@
     "component/classes": "*"
   },
   "development": {
-    "chaijs/chai": "*"
+    "chaijs/chai": "*",
+    "tmcw/happen": "*"
   },
   "license": "LGPLv3"
 }

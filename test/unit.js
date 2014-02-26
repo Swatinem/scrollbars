@@ -1,6 +1,9 @@
+/* vim: set shiftwidth=2 tabstop=2 noexpandtab textwidth=80 wrap : */
+"use strict";
 
 var scrollbars = require('scrollbars');
-require('chaijs-chai').should();
+var should = require('chaijs-chai').should();
+var happen = require('happen');
 
 
 describe('Scrollbars', function () {
@@ -24,15 +27,26 @@ describe('Scrollbars', function () {
 		return el;
 	}
 
+	var constvars = ['SIZE', 'MIN_SIZE', 'CORNER', 'TIMEOUT'];
+	var consts = {};
+
 	before(function () {
+		constvars.forEach(function (v) {
+			consts[v] = scrollbars[v];
+		});
 		document.body.appendChild(testEl);
 	});
 	after(function () {
 		testEl.parentNode.removeChild(testEl);
 	});
 	afterEach(function () {
+		// remove fixture
 		while (testEl.firstChild)
 			testEl.removeChild(testEl.firstChild);
+		// reset constant changes
+		constvars.forEach(function (v) {
+			scrollbars[v] = consts[v];
+		});
 	});
 
 	it('should inherit `position` of already positioned elements', function () {
@@ -109,7 +123,7 @@ describe('Scrollbars', function () {
 	it('should not mess with the childs dimensions', function () {
 		makeStyle('.test-dimensions { width: 50px; height: 200px; overflow: hidden; padding: 10px; }');
 		var elem = makeElem('test-dimensions');
-		elem.innerHTML = '<span>' + Array(4).join('    And there is a text node…\n') + '</span>';
+		elem.innerHTML = '<span>' + (new Array(4)).join('    And there is a text node…\n') + '</span>';
 		var child = elem.firstChild;
 		var dim = child.getBoundingClientRect();
 		dim = [dim.top, dim.right, dim.bottom, dim.left, dim.width, dim.height];
@@ -144,6 +158,82 @@ describe('Scrollbars', function () {
 		scr.handleH.firstChild.className.should.include('show');
 		scr.handleV.style.bottom.should.eql('10px');
 		scr.handleH.style.right.should.eql('10px');
+	});
+
+	it('should hide the scrollbars after a timeout', function (done) {
+		var elem = something();
+		scrollbars.TIMEOUT = 5;
+		var scr = scrollbars(elem);
+		scr.refresh();
+		scr.handleV.firstChild.className.should.include('show');
+		scr.handleH.firstChild.className.should.include('show');
+		setTimeout(function () {
+			scr.handleV.firstChild.className.should.not.include('show');
+			scr.handleH.firstChild.className.should.not.include('show');
+			done();
+		}, 10);
+	});
+
+	it('should not hide the scrollbar you are hovering over', function (done) {
+		var elem = something();
+		scrollbars.TIMEOUT = 5;
+		var scr = scrollbars(elem);
+		scr.refresh();
+		happen.once(scr.handleV.firstChild, {type: 'mouseenter'});
+		scr.handleV.firstChild.className.should.include('show');
+		scr.handleH.firstChild.className.should.include('show');
+		setTimeout(function () {
+			scr.handleV.firstChild.className.should.include('show');
+			scr.handleH.firstChild.className.should.not.include('show');
+			happen.once(scr.handleV.firstChild, {type: 'mouseleave'});
+			scr.refresh();
+			happen.once(scr.handleH.firstChild, {type: 'mouseenter'});
+			setTimeout(function () {
+				scr.handleV.firstChild.className.should.not.include('show');
+				scr.handleH.firstChild.className.should.include('show');
+				done();
+			}, 10);
+		}, 10);
+	});
+
+	it('should support scrolling by dragging the handle', function () {
+		var elem = something();
+		var scr = scrollbars(elem);
+		scr.refresh();
+		elem.scrollTop.should.eql(0);
+		happen.mousedown(scr.handleV.firstChild, {clientY: 50, clientX: 50});
+		happen.mousemove(elem, {clientY: 200, clientX: 200});
+		happen.mouseup(elem);
+		elem.scrollTop.should.eql(100);
+		elem.scrollLeft.should.eql(0);
+		happen.mousedown(scr.handleH.firstChild, {clientY: 50, clientX: 50});
+		happen.mousemove(elem, {clientY: 200, clientX: 200});
+		// just for the sake of test coverage:
+		happen.once(scr.handleV.firstChild, {type: 'mouseenter'});
+		happen.once(scr.handleV.firstChild, {type: 'mouseleave'});
+		happen.mouseup(elem);
+		elem.scrollLeft.should.eql(100);
+	});
+
+	it('should correctly destroy when dragging', function () {
+		var elem = something();
+		var scr = scrollbars(elem);
+		scr.refresh();
+		happen.mousedown(scr.handleV.firstChild, {clientY: 50, clientX: 50});
+		scr.destroy();
+		happen.mousemove(elem, {clientY: 200, clientX: 200});
+		elem.scrollTop.should.eql(0);
+	});
+
+	it('should not create handles when scrollbar size is 0', function () {
+		scrollbars.SIZE = 0;
+		var elem = something();
+		var scr = scrollbars(elem);
+		scr.refresh();
+		should.not.exist(scr.handleV);
+		should.not.exist(scr.handleH);
+		// but it should still create a wrapper
+		scr.wrapper.should.eql(elem.parentNode);
 	});
 
 	it.skip('should inherit styles based on an id as well', function () {

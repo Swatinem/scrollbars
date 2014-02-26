@@ -1,13 +1,16 @@
+/* vim: set shiftwidth=2 tabstop=2 noexpandtab textwidth=80 wrap : */
+"use strict";
 
-var scrollbarSize = require('scrollbar-size');
 var debounce = require('debounce');
 var classes = require('classes');
 var events = require('events');
 
 module.exports = Scrollbars;
 
+Scrollbars.SIZE = require('scrollbar-size');
 Scrollbars.MIN_SIZE = 25;
 Scrollbars.CORNER = 6;
+Scrollbars.TIMEOUT = 1000;
 
 var positioned = ['relative', 'absolute', 'fixed'];
 
@@ -38,7 +41,7 @@ function Scrollbars(element) {
 	};
 
 	classes(this.elem).add('scrollbars-override');
-	setPosition(this.elem, [0, -scrollbarSize, -scrollbarSize, 0]);
+	setPosition(this.elem, [0, -Scrollbars.SIZE, -Scrollbars.SIZE, 0]);
 
 	style = this.wrapper.style;
 	// set the wrapper to be positioned
@@ -51,7 +54,7 @@ function Scrollbars(element) {
 
 	// OSX has native overlay scrollbars which have a width of 0
 	// in that case just don’t create any custom ones
-	if (!scrollbarSize)
+	if (!Scrollbars.SIZE)
 		return this;
 
 	// and create scrollbar handles
@@ -68,7 +71,7 @@ function Scrollbars(element) {
 			self.handleV.firstChild.className = 'scrollbars-handle vertical';
 		if (!self.dragging || self.dragging.elem !== self.handleH)
 			self.handleH.firstChild.className = 'scrollbars-handle horizontal';
-	}, 1000);
+	}, Scrollbars.TIMEOUT);
 
 	// hook them up to scroll events
 	this.events.bind('scroll', 'refresh');
@@ -111,7 +114,7 @@ Scrollbars.prototype._startDrag = function Scrollbars__startDrag(handle, ev) {
 	this.dragging = {
 		elem: handle,
 		handler: handler,
-		offset: vertical ? ev.pageY - rect.top : ev.pageX - rect.left
+		offset: vertical ? ev.clientY - rect.top : ev.clientX - rect.left
 	};
 };
 
@@ -121,10 +124,10 @@ Scrollbars.prototype._mouseMove = function Scrollbars__mouseMove(ev) {
 	var size = handleSize(this.elem);
 	var offset;
 	if (vertical) {
-		offset = ev.pageY - rect.top - this.dragging.offset;
+		offset = ev.clientY - rect.top - this.dragging.offset;
 		this.elem.scrollTop = offset / size.sizeH * size.sTM;
 	} else {
-		offset = ev.pageX - rect.left - this.dragging.offset;
+		offset = ev.clientX - rect.left - this.dragging.offset;
 		this.elem.scrollLeft = offset / size.sizeW * size.sLM;
 	}
 };
@@ -160,7 +163,7 @@ function handleSize(elem) {
  * Refreshes (and shows) the scrollbars
  */
 Scrollbars.prototype.refresh = function Scrollbars_refresh() {
-	if (!scrollbarSize)
+	if (!Scrollbars.SIZE)
 		return;
 	var size = handleSize(this.elem);
 	var scrolledPercentage;
