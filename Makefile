@@ -1,7 +1,6 @@
 
 test: lint build/build.js
-	./node_modules/.bin/component test phantom
-	@mkdir -p coverage && ./node_modules/.bin/component test phantom -R node_modules/component-istanbul/reporter.js > coverage/coverage.json
+	./node_modules/.bin/component test phantom --coverage
 	@./node_modules/.bin/istanbul report lcov # for html and coveralls
 	@./node_modules/.bin/istanbul report text-summary # on the command line
 
